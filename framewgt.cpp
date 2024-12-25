@@ -36,6 +36,19 @@ void FrameWgt::setTitleIcon(const QPixmap &icon)
     m_pTitleBar->setTitleIcon(icon);
 }
 
+void FrameWgt::setBackgroundColor(const QColor &color)
+{
+    m_bgColor = color;
+    if(this->isMaximized() || this->isFullScreen())
+    {
+        updateRadius(0);
+    }
+    else
+    {
+        updateRadius(m_radius);
+    }
+}
+
 void FrameWgt::setRadius(const uint &r)
 {
     m_radius = r;
@@ -45,19 +58,18 @@ void FrameWgt::setRadius(const uint &r)
 void FrameWgt::setShadowColor(const QColor &color)
 {
     m_shadowColor = color;
-    updateShadow();
+    update();
 }
 
 void FrameWgt::setBlurRadius(const uint &r)
 {
     m_blurRadius = r;
-    updateShadow();
+    update();
 }
 
 void FrameWgt::setHiddenMin(const bool &is)
 {
     m_pTitleBar->setHiddenMin(is);
-    updateShadow();
 }
 
 void FrameWgt::setHiddenMax(const bool &is)
@@ -145,11 +157,6 @@ void FrameWgt::initialize()
         m_pBorder->setCursor(m_pCenter_widget->cursor());
     }
     m_pBorder->setLayout(pCenterLayout);
-    m_pShadow = new QGraphicsDropShadowEffect(this);
-    m_pShadow->setOffset(0,0); // 偏移量
-    m_pShadow->setColor(m_shadowColor);
-    m_pShadow->setBlurRadius(m_blurRadius); // 设置阴影范围
-    m_pBorder->setGraphicsEffect(m_pShadow); // 应用阴影
     m_pGridLayout = new QGridLayout;
     m_pGridLayout->setContentsMargins(m_blurRadius, m_blurRadius, m_blurRadius, m_blurRadius); // 给边框阴影预留位置
     m_pGridLayout->addWidget(m_pBorder);
@@ -226,54 +233,14 @@ void FrameWgt::calculateOpflag(QPoint pos)
 void FrameWgt::updateRadius(const uint &r)
 {
     m_pBorder->setObjectName("Border");
-    m_pBorder->setStyleSheet(QString("QWidget#Border{border-radius: %1px;}").arg(QString::number(r)));
-
+    QString cr = QString::number(m_bgColor.red());   // 获取红色分量
+    QString cg = QString::number(m_bgColor.green()); // 获取绿色分量
+    QString cb = QString::number(m_bgColor.blue());  // 获取蓝色分量
+    QString ca = QString::number(m_bgColor.alpha()); // 获取透明度分量
+    m_pBorder->setStyleSheet(QString("QWidget#Border{border-radius: %1px;background-color: rgba(%2, %3, %4, %5);}").arg(QString::number(r), cr, cg, cb, ca));
 
     m_pTitleBar->setRadius(r);
-    if(m_pCenter_widget != nullptr)
-    {
-        QString topR = "0";
-        if(m_pTitleBar->isHidden())
-        {
-            topR = QString::number(m_radius);
-        }
-        // m_pCenter_widget->setStyleSheet(QString(m_pCenter_widget->styleSheet() + "border-top-left-radius: %2px;"
-        //                                                                          "border-top-right-radius: %2px;"
-        //                                                                          "border-bottom-left-radius: %1px;"
-        //                                                                          "border-bottom-right-radius: %1px;").arg(QString::number(r), topR));
-    }
-}
-
-void FrameWgt::updateShadow()
-{
-    m_pShadow->setBlurRadius(m_blurRadius);
-    m_pShadow->setColor(m_shadowColor);
-    if(this->isMaximized() || this->isFullScreen())
-    {
-        m_pGridLayout->setContentsMargins(0, 0, 0, 0);
-    }
-    else
-    {
-        m_pGridLayout->setContentsMargins(m_blurRadius, m_blurRadius, m_blurRadius, m_blurRadius);
-    }
-}
-
-void FrameWgt::resizeEvent(QResizeEvent *event)
-{
-    if(this->isHidden())
-    {
-        return;
-    }
-    if(this->isMaximized() || this->isFullScreen())
-    {
-        m_pGridLayout->setContentsMargins(0, 0, 0, 0);
-    }
-    else
-    {
-        m_pGridLayout->setContentsMargins(m_blurRadius, m_blurRadius, m_blurRadius, m_blurRadius);
-    }
-    QApplication::processEvents();
-    QWidget::resizeEvent(event);
+    update();
 }
 
 void FrameWgt::mousePressEvent(QMouseEvent *event)
@@ -446,4 +413,123 @@ void FrameWgt::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event)
     m_isOp = false;
+}
+
+void FrameWgt::paintEvent(QPaintEvent *event)
+{
+    if(this->isMaximized() || this->isFullScreen())
+    {
+        m_pGridLayout->setContentsMargins(0, 0, 0, 0);
+        return;
+    }
+    else
+    {
+        // 给出阴影绘制区域
+        m_pGridLayout->setContentsMargins(m_blurRadius, m_blurRadius, m_blurRadius, m_blurRadius);
+    }
+    int radius = m_blurRadius + m_radius;
+    int width = this->width();
+    int height = this->height();
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing, true); //抗锯齿
+    painter.setPen(Qt::NoPen);
+
+    QPainterPath rectPath;
+    rectPath.addRect(this->rect());
+    QRect borderRect(m_blurRadius, m_blurRadius, m_pBorder->width(), m_pBorder->height());
+    // 创建圆角矩形的路径
+    QPainterPath clipPath;
+    clipPath.addRoundedRect(borderRect, m_radius, m_radius);
+    // 限制绘制范围
+    painter.setClipPath(rectPath - clipPath);
+
+    //线性渐变
+    QLinearGradient linearGradient;
+    linearGradient.setColorAt(0, m_shadowColor);
+    linearGradient.setColorAt(m_radius*1.0/radius, m_shadowColor);
+    QColor color = m_shadowColor;
+    color.setAlpha(0);
+    linearGradient.setColorAt(1, color);
+
+    //圆形渐变
+    QRadialGradient radialGradient;
+    radialGradient.setColorAt(0, m_shadowColor);
+    radialGradient.setColorAt(m_radius*1.0/radius, m_shadowColor);
+    radialGradient.setColorAt(1, color);
+
+    //左上角
+    radialGradient.setCenter(radius, radius); //中心点
+    radialGradient.setRadius(radius); //半径
+    radialGradient.setFocalPoint(radius, radius); //焦点
+    painter.setBrush(radialGradient);
+    QRectF rectf(0, 0, radius*2, radius*2);
+    QPainterPath path;
+    path.moveTo(radius, radius);//移动圆心
+    path.arcTo(rectf, 90, 90);
+    painter.drawPath(path);   //画路径(扇形)
+
+    //左边
+    linearGradient.setStart(radius, height/2);
+    linearGradient.setFinalStop(0, height/2);
+    painter.setBrush(linearGradient);
+    path.clear();
+    path.addRect(0, radius, radius, height - radius*2);
+    painter.drawPath(path);
+
+    //左下角
+    radialGradient.setCenter(radius, height - radius); //中心点
+    radialGradient.setRadius(radius); //半径
+    radialGradient.setFocalPoint(radius, height - radius); //焦点
+    painter.setBrush(radialGradient);
+    path.clear();
+    path.moveTo(radius, height - radius);//移动圆心
+    rectf.setRect(0, height - radius*2, radius*2, radius*2);
+    path.arcTo(rectf, 180, 90);
+    painter.drawPath(path);   //画路径(扇形)
+
+    //下边
+    linearGradient.setStart(width/2, height - radius);
+    linearGradient.setFinalStop(width/2, height);
+    painter.setBrush(linearGradient);
+    path.clear();
+    path.addRect(radius, height - radius, width - radius*2, radius);
+    painter.drawPath(path);
+
+    //右下角
+    radialGradient.setCenter(width - radius, height - radius); //中心点
+    radialGradient.setRadius(radius); //半径
+    radialGradient.setFocalPoint(width - radius, height - radius); //焦点
+    painter.setBrush(radialGradient);
+    path.clear();
+    path.moveTo(width - radius, height - radius);//移动圆心
+    rectf.setRect(width - radius*2, height - radius*2, radius*2, radius*2);
+    path.arcTo(rectf, 270, 90);
+    painter.drawPath(path);   //画路径(扇形)
+
+    //右边
+    linearGradient.setStart(width - radius, height/2);
+    linearGradient.setFinalStop(width, height/2);
+    painter.setBrush(linearGradient);
+    path.clear();
+    path.addRect(width - radius, radius, radius, height - radius*2);
+    painter.drawPath(path);
+
+    //右上角
+    radialGradient.setCenter(width - radius, radius); //中心点
+    radialGradient.setRadius(radius); //半径
+    radialGradient.setFocalPoint(width - radius, radius); //焦点
+    painter.setBrush(radialGradient);
+    path.clear();
+    path.moveTo(width - radius, radius);//移动圆心
+    rectf.setRect(width - radius*2, 0, radius*2, radius*2);
+    path.arcTo(rectf, 0, 90);
+    painter.drawPath(path);   //画路径(扇形)
+
+    //上边
+    linearGradient.setStart(height/2, radius);
+    linearGradient.setFinalStop(height/2, 0);
+    painter.setBrush(linearGradient);
+    path.clear();
+    path.addRect(radius, 0, width - radius*2, radius);
+    painter.drawPath(path);
 }

@@ -2,9 +2,10 @@
 #define FRAMEWGT_H
 
 #include <QWidget>
-#include <QGraphicsDropShadowEffect>
 #include <QGridLayout>
 #include <QApplication>
+#include <QPainter>
+#include <QPainterPath>
 
 #include "titlebar.h"
 
@@ -27,6 +28,9 @@ public:
     void setTitleIcon(const QString &path);
     // 设置标题栏图标
     void setTitleIcon(const QPixmap &icon);
+
+    // 设置窗口颜色
+    void setBackgroundColor(const QColor &color);
 
     // 设置边框圆角半径
     void setRadius(const uint &r);
@@ -86,26 +90,26 @@ protected:
     void initialize();
     void calculateOpflag(QPoint pos);
     void updateRadius(const uint &r);
-    void updateShadow();
 
-    void resizeEvent(QResizeEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     QWidget *m_pCenter_widget = nullptr; // 用户所提供的中间窗口
     QWidget *m_pBorder = nullptr; // 模拟边框的窗口
     TitleBar *m_pTitleBar = nullptr; // 标题栏
-    QGraphicsDropShadowEffect *m_pShadow = nullptr; // 边框阴影
     QGridLayout *m_pGridLayout = nullptr;
 
     int m_opFlag = OpFlag::NONE; // 窗口移动、拉伸控制
     bool m_isOp = false; // 是否能移动、拉伸
     QPointF m_lastPos; // 上一次的鼠标位置
-    QColor m_shadowColor = QColor(51, 51, 51, 128); // 边框阴影颜色
+    QColor m_shadowColor = QColor(91, 91, 91, 90); // 边框阴影颜色
     int m_blurRadius = 10; // 边框阴影范围
     int m_radius = 10; // 边框圆角半径
+    QColor m_bgColor = QColor(0, 0, 0, 0);
 };
 
 #endif // FRAMEWGT_H

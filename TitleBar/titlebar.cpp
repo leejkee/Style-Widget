@@ -220,12 +220,16 @@ void TitleBar::updateStyle()
     QString styleClose = "QPushButton{border: 0px;}QPushButton:hover{background-color: hoverColor;borderRadius}QPushButton:pressed{background-color: pressedColor;borderRadius}";
 
     this->setObjectName("titleBar");
+    QString cr = QString::number(m_bgColor.red());   // 获取红色分量
+    QString cg = QString::number(m_bgColor.green()); // 获取绿色分量
+    QString cb = QString::number(m_bgColor.blue());  // 获取蓝色分量
+    QString ca = QString::number(m_bgColor.alpha()); // 获取透明度分量
     this->setStyleSheet(QString("QWidget#titleBar{border-top-left-radius: %1px;"
                                 "border-top-right-radius: %1px;"
                                 "border-bottom-left-radius: 0px;"
                                 "border-bottom-right-radius: 0px;"
-                                "background-color: %2;"
-                                "color: %3;}").arg(QString::number(m_radius), m_bgColor.name(), m_textColor.name()));
+                                "background-color: rgba(%2, %3, %4, %5);}").arg(QString::number(m_radius), cr, cg, cb, ca));
+    m_pLabTitle->setStyleSheet(QString("color: %1;").arg(m_textColor.name()));
 
     QString borderRadius = QString("border-top-left-radius: 0px;border-top-right-radius: %1px;").arg(QString::number(m_radius));
     m_pBtnClose->setStyleSheet(styleClose.replace("hoverColor", m_closeHoverColor.name()).replace("pressedColor", m_closePressedColor.name()).replace("borderRadius", borderRadius));
