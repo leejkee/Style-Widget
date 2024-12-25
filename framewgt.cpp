@@ -225,7 +225,9 @@ void FrameWgt::calculateOpflag(QPoint pos)
 
 void FrameWgt::updateRadius(const uint &r)
 {
-    m_pBorder->setStyleSheet(QString("border-radius: %1px;").arg(QString::number(r)));
+    m_pBorder->setObjectName("Border");
+    m_pBorder->setStyleSheet(QString("QWidget#Border{border-radius: %1px;}").arg(QString::number(r)));
+
 
     m_pTitleBar->setRadius(r);
     if(m_pCenter_widget != nullptr)
@@ -235,10 +237,10 @@ void FrameWgt::updateRadius(const uint &r)
         {
             topR = QString::number(m_radius);
         }
-        m_pCenter_widget->setStyleSheet(QString(m_pCenter_widget->styleSheet() + "border-top-left-radius: %2px;"
-                                                                                 "border-top-right-radius: %2px;"
-                                                                                 "border-bottom-left-radius: %1px;"
-                                                                                 "border-bottom-right-radius: %1px;").arg(QString::number(r), topR));
+        // m_pCenter_widget->setStyleSheet(QString(m_pCenter_widget->styleSheet() + "border-top-left-radius: %2px;"
+        //                                                                          "border-top-right-radius: %2px;"
+        //                                                                          "border-bottom-left-radius: %1px;"
+        //                                                                          "border-bottom-right-radius: %1px;").arg(QString::number(r), topR));
     }
 }
 

@@ -215,16 +215,17 @@ void TitleBar::initialize()
 
 void TitleBar::updateStyle()
 {
-    QString styleMin = "QPushButton:hover{background-color: hoverColor;border-radius: 0px;}QPushButton:pressed{background-color: pressedColor;border-radius: 0px;}";
-    QString styleMax = "QPushButton:hover{background-color: hoverColor;border-radius: 0px;}QPushButton:pressed{background-color: pressedColor;border-radius: 0px;}";
-    QString styleClose = "QPushButton:hover{background-color: hoverColor;borderRadius}QPushButton:pressed{background-color: pressedColor;borderRadius}";
+    QString styleMin = "QPushButton{border: 0px;}QPushButton:hover{background-color: hoverColor;border-radius: 0px;}QPushButton:pressed{background-color: pressedColor;border-radius: 0px;}";
+    QString styleMax = "QPushButton{border: 0px;}QPushButton:hover{background-color: hoverColor;border-radius: 0px;}QPushButton:pressed{background-color: pressedColor;border-radius: 0px;}";
+    QString styleClose = "QPushButton{border: 0px;}QPushButton:hover{background-color: hoverColor;borderRadius}QPushButton:pressed{background-color: pressedColor;borderRadius}";
 
-    this->setStyleSheet(QString("border-top-left-radius: %1px;"
+    this->setObjectName("titleBar");
+    this->setStyleSheet(QString("QWidget#titleBar{border-top-left-radius: %1px;"
                                 "border-top-right-radius: %1px;"
                                 "border-bottom-left-radius: 0px;"
                                 "border-bottom-right-radius: 0px;"
                                 "background-color: %2;"
-                                "color: %3").arg(QString::number(m_radius), m_bgColor.name(), m_textColor.name()));
+                                "color: %3;}").arg(QString::number(m_radius), m_bgColor.name(), m_textColor.name()));
 
     QString borderRadius = QString("border-top-left-radius: 0px;border-top-right-radius: %1px;").arg(QString::number(m_radius));
     m_pBtnClose->setStyleSheet(styleClose.replace("hoverColor", m_closeHoverColor.name()).replace("pressedColor", m_closePressedColor.name()).replace("borderRadius", borderRadius));
