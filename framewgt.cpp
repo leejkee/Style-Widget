@@ -285,7 +285,11 @@ void FrameWgt::mousePressEvent(QMouseEvent *event)
     if(m_opFlag != -1)
     {
         m_isOp = true;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        m_lastPos = event->globalPos();
+#else
         m_lastPos = event->globalPosition();
+#endif
     }
 }
 
@@ -298,7 +302,11 @@ void FrameWgt::mouseMoveEvent(QMouseEvent *event)
     }
 
     //获取鼠标拖动的位置，
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QPointF currPos = event->globalPos();
+#else
     QPointF currPos = event->globalPosition();
+#endif
     // 计算鼠标按下并拖动的的位移
     QPointF ptemp = currPos - m_lastPos ;
     //保存当前鼠标拖动的位置，用于下一次计算拖动位移
