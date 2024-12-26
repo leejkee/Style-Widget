@@ -151,9 +151,10 @@ void FrameWgt::initialize()
     pCenterLayout->addWidget(m_pTitleBar);
 
     if(m_pCenter_widget){
+        this->setTitleText(m_pCenter_widget->windowTitle());
+        this->setTitleIcon(m_pCenter_widget->windowIcon().pixmap(64, 64));
         pCenterLayout->addWidget(m_pCenter_widget);
         pCenterLayout->setStretch(1, 1);
-        setTitleText(m_pCenter_widget->windowTitle());
         m_pBorder->setCursor(m_pCenter_widget->cursor());
     }
     m_pBorder->setLayout(pCenterLayout);
