@@ -64,7 +64,16 @@ void FrameWgt::setShadowColor(const QColor &color)
 void FrameWgt::setBlurRadius(const uint &r)
 {
     m_blurRadius = r;
-    update();
+    if(this->isMaximized() || this->isFullScreen())
+    {
+        m_pGridLayout->setContentsMargins(0, 0, 0, 0);
+        return;
+    }
+    else
+    {
+        // 给出阴影绘制区域
+        m_pGridLayout->setContentsMargins(m_blurRadius, m_blurRadius, m_blurRadius, m_blurRadius);
+    }
 }
 
 void FrameWgt::setHiddenMin(const bool &is)
