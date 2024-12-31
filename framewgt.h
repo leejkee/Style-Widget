@@ -71,9 +71,6 @@ public:
     // 向标题后面添加控件
     void addLayoutToTitleBar(QLayout *layout);
 
-protected slots:
-    void onMax(bool is);
-
 protected:
     enum OpFlag
     {
@@ -96,6 +93,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
     void paintEvent(QPaintEvent *event) override;
+    void changeEvent(QEvent *event) override;
 
 private:
     QWidget *m_pCenter_widget = nullptr; // 用户所提供的中间窗口

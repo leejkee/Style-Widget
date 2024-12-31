@@ -127,23 +127,6 @@ void FrameWgt::addLayoutToTitleBar(QLayout *layout)
     m_pTitleBar->addLayout(layout);
 }
 
-void FrameWgt::onMax(bool is)
-{
-    if(this->isHidden())
-    {
-        return;
-    }
-    if(is)
-    {
-        updateRadius(0);
-    }
-    else
-    {
-        updateRadius(m_radius);
-    }
-}
-
-
 void FrameWgt::initialize()
 {
     this->setWindowFlags(Qt::FramelessWindowHint | windowFlags()); // 隐藏默认边框
@@ -176,7 +159,6 @@ void FrameWgt::initialize()
     setRadius(m_radius);
 
     connect(m_pTitleBar, SIGNAL(closed()), this, SLOT(close()));
-    connect(m_pTitleBar, SIGNAL(maxChange(bool)), this, SLOT(onMax(bool)));
 }
 
 void FrameWgt::calculateOpflag(QPoint pos)
@@ -542,4 +524,25 @@ void FrameWgt::paintEvent(QPaintEvent *event)
     path.clear();
     path.addRect(radius, 0, width - radius*2, radius);
     painter.drawPath(path);
+}
+
+void FrameWgt::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::WindowStateChange) {
+        QWindowStateChangeEvent *stateChangeEvent = static_cast<QWindowStateChangeEvent *>(event);
+        Qt::WindowStates oldState = stateChangeEvent->oldState();
+        Qt::WindowStates newState = windowState();
+        if (newState == Qt::WindowMaximized || newState == Qt::WindowFullScreen) {
+            // 窗口被最大化
+            updateRadius(0);
+        } else if (newState == Qt::WindowMinimized) {
+            // 窗口被最小化
+            updateRadius(m_radius);
+        } else if(oldState == Qt::WindowMaximized || oldState == Qt::WindowMinimized || oldState == Qt::WindowFullScreen)
+        {
+            // 窗口被还原
+            updateRadius(m_radius);
+        }
+    }
+    QWidget::changeEvent(event);
 }

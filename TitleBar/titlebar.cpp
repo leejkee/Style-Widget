@@ -208,6 +208,8 @@ void TitleBar::initialize()
     this->setLayout(m_pMainLayout);
 
     m_pBtnClose->setFocusPolicy(Qt::NoFocus);
+    m_pBtnMin->setFocusPolicy(Qt::NoFocus);
+    m_pBtnMax->setFocusPolicy(Qt::NoFocus);
     connect(m_pBtnMin,SIGNAL(clicked(bool)),this,SLOT(onMin()));
     connect(m_pBtnMax,SIGNAL(clicked(bool)),this,SLOT(onMax()));
     connect(m_pBtnClose,SIGNAL(clicked(bool)),this,SIGNAL(closed()));
