@@ -266,9 +266,9 @@ void TitleBar::mousePressEvent(QMouseEvent *event)
 {
     m_isPressed = true;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    m_alof_win_mousePos = event->globalPos();
+    m_win_mousePos = event->globalPos();
 #else
-    m_alof_win_mousePos = event->globalPosition();
+    m_win_mousePos = event->globalPosition();
 #endif
     QWidget::mousePressEvent(event);
 }
@@ -281,11 +281,11 @@ void TitleBar::mouseMoveEvent(QMouseEvent *event)
     if (m_isPressed && !this->window()->isMaximized() && !this->window()->isFullScreen())
     {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        QPointF movePoint = event->globalPos() - m_alof_win_mousePos;
-        m_alof_win_mousePos = event->globalPos();
+        QPointF movePoint = event->globalPos() - m_win_mousePos;
+        m_win_mousePos = event->globalPos();
 #else
-        QPointF movePoint = event->globalPosition() - m_alof_win_mousePos;
-        m_alof_win_mousePos = event->globalPosition();
+        QPointF movePoint = event->globalPosition() - m_win_mousePos;
+        m_win_mousePos = event->globalPosition();
 #endif
         this->window()->move(this->window()->pos() + movePoint.toPoint());
         emit movePos(movePoint);

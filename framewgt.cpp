@@ -132,7 +132,7 @@ void FrameWgt::initialize()
     this->setWindowFlags(Qt::FramelessWindowHint | windowFlags()); // 隐藏默认边框
     this->setAttribute(Qt::WA_TranslucentBackground, true); // 设置透明背景
     setMouseTracking(true); // 启用鼠标追踪
-    this->resize(400, 300);
+    // this->resize(400, 300);
     m_pBorder = new QWidget;
     m_pBorder->setCursor(Qt::ArrowCursor);
     m_pTitleBar = new TitleBar(m_pBorder);
