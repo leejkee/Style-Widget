@@ -244,7 +244,7 @@ void TitleBar::updateStyle()
     m_pBtnClose->setFixedSize(m_height * 2, m_height);
     m_pBtnMin->setFixedSize(m_height * 2, m_height);
     m_pBtnMax->setFixedSize(m_height * 2, m_height);
-    m_pLabIcon->setFixedHeight(m_height - 10);
+    m_pLabIcon->setFixedSize(m_height - 10, m_height - 10);
 }
 
 void TitleBar::moveTopParent(QWidget *pWgt,QPoint movePoint)

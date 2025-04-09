@@ -47,12 +47,14 @@ void FrameWgt::setBackgroundColor(const QColor &color)
     {
         updateRadius(m_radius);
     }
+    updateSize();
 }
 
 void FrameWgt::setRadius(const uint &r)
 {
     m_radius = r;
     updateRadius(m_radius);
+    updateSize();
 }
 
 void FrameWgt::setShadowColor(const QColor &color)
@@ -90,11 +92,13 @@ void FrameWgt::setHiddenTitleBar(const bool &is)
 {
     m_pTitleBar->setHidden(is);
     updateRadius(m_radius);
+    updateSize();
 }
 
 void FrameWgt::setTitleBarHeight(const uint &h)
 {
     m_pTitleBar->setHeight(h);
+    updateSize();
 }
 
 void FrameWgt::setMinIcon(const QIcon &icon)
@@ -232,7 +236,35 @@ void FrameWgt::updateRadius(const uint &r)
     m_pBorder->setStyleSheet(QString("QWidget#Border{border-radius: %1px;background-color: rgba(%2, %3, %4, %5);}").arg(QString::number(r), cr, cg, cb, ca));
 
     m_pTitleBar->setRadius(r);
+    // updateSize();
     update();
+}
+
+void FrameWgt::updateSize()
+{
+    if(m_pCenter_widget == nullptr)
+    {
+        return;
+    }
+
+    int w = m_pCenter_widget->maximumWidth() + m_blurRadius;
+    int h = m_pCenter_widget->maximumHeight() + m_blurRadius;
+
+    if(!m_pTitleBar->isHidden())
+    {
+        h += m_pTitleBar->height();
+    }
+
+    this->setMaximumSize(qMin(w, QWIDGETSIZE_MAX), qMin(h, QWIDGETSIZE_MAX));
+
+    w = m_pCenter_widget->width() + m_blurRadius;
+    h = m_pCenter_widget->height() + m_blurRadius;
+
+    if(!m_pTitleBar->isHidden())
+    {
+        h += m_pTitleBar->height();
+    }
+    this->resize(w, h);
 }
 
 void FrameWgt::mousePressEvent(QMouseEvent *event)
@@ -390,12 +422,22 @@ void FrameWgt::mouseMoveEvent(QMouseEvent *event)
         if(w < this->minimumWidth())
         {
             x = this->pos().x();
-            w = this->size().width();
+            w = this->minimumWidth();
         }
         if(h < this->minimumHeight())
         {
             y = this->pos().y();
-            h = this->size().height();
+            h = this->minimumHeight();
+        }
+        if(w > this->maximumWidth())
+        {
+            x = this->pos().x();
+            w = this->maximumWidth();
+        }
+        if(h > this->maximumHeight())
+        {
+            y = this->pos().y();
+            h = this->maximumHeight();
         }
         this->setGeometry(x,y,w,h);
     }

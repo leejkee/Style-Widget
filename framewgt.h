@@ -87,6 +87,7 @@ protected:
     void initialize();
     void calculateOpflag(QPoint pos);
     void updateRadius(const uint &r);
+    void updateSize();
 
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
