@@ -68,6 +68,7 @@ private:
 
     bool m_isPressed = false;
     bool m_moveEnable = true;
+    bool m_ignoreNextPress = false;
     QPointF m_win_mousePos = QPoint(0,0);
     uint m_height = 30;
     QColor m_bgColor = Qt::white;

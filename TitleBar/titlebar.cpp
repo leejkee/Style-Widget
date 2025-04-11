@@ -264,6 +264,11 @@ void TitleBar::moveTopParent(QWidget *pWgt,QPoint movePoint)
 
 void TitleBar::mousePressEvent(QMouseEvent *event)
 {
+    if(m_ignoreNextPress)
+    {
+        m_ignoreNextPress = false;
+        return QWidget::mousePressEvent(event);
+    }
     m_isPressed = true;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     m_win_mousePos = event->globalPos();
@@ -278,18 +283,29 @@ void TitleBar::mouseMoveEvent(QMouseEvent *event)
     if(!m_moveEnable){
         return;
     }
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QPointF movePoint = event->globalPos() - m_win_mousePos;
+    m_win_mousePos = event->globalPos();
+#else
+    QPointF movePoint = event->globalPosition() - m_win_mousePos;
+    m_win_mousePos = event->globalPosition();
+#endif
     if (m_isPressed && !this->window()->isMaximized() && !this->window()->isFullScreen())
     {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        QPointF movePoint = event->globalPos() - m_win_mousePos;
-        m_win_mousePos = event->globalPos();
-#else
-        QPointF movePoint = event->globalPosition() - m_win_mousePos;
-        m_win_mousePos = event->globalPosition();
-#endif
         this->window()->move(this->window()->pos() + movePoint.toPoint());
         emit movePos(movePoint);
     }
+    if (m_isPressed && (this->window()->isMaximized() || this->window()->isFullScreen()))
+    {
+        QPoint pos = event->pos();
+        int w = this->width();
+        this->window()->showNormal();
+        // qDebug() << this->mapTo(this->window(), QPoint(0, 0));
+        pos = QPoint(this->width() * 1.0 / w * pos.x(), this->pos().y() + pos.y());
+        this->window()->move(m_win_mousePos.toPoint() - pos);
+        emit movePos(movePoint);
+    }
+
     QWidget::mouseMoveEvent(event);
 }
 
@@ -301,6 +317,8 @@ void TitleBar::mouseReleaseEvent(QMouseEvent *event)
 
 void TitleBar::mouseDoubleClickEvent(QMouseEvent *event)
 {
+    m_ignoreNextPress = true;
+    m_isPressed = false;
     if(!m_pBtnMax->isVisible() || event->button() != Qt::MouseButton::LeftButton){
         return;
     }
