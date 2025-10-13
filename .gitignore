@@ -1,0 +1,4 @@
+.idea/
+CMakePresets.json
+CMakeUserPresets.json
+build/
