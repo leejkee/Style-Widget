@@ -20,5 +20,10 @@
 
 ![](https://i-blog.csdnimg.cn/direct/d3f9b7c449384987be43e728650ad574.gif)
 
-## 运行示例
+## 编译
+
+```
+cmake -B build -S .
+cmake --build build/
+```
 
